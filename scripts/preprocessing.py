@@ -6,8 +6,10 @@ This script is designed to preprocess RNA secondary structure data. It takes raw
 it according to specified parameters, and outputs the preprocessed data. If no raw data is present, the 
 script will download it from the specified URL.
 
+NOTE: Generate and preprocess rna_sequences as List[str].
+
 Usage:
-    python run_preprocessing.py --input data/raw_data.npy --output data/preprocessed_data.npy --batch-size 64 --shuffle
+    python run_preprocessing.py --input data/raw --output data/preprocessed_data.npy 
 
 Arguments:
     --input: Path to the input raw data file (in .npy format).
@@ -20,6 +22,7 @@ Author: Wayne Yeo
 import os
 import requests
 import tarfile
+import argparse
 
 def download_data(url, output_dir="data/raw"):
     """
@@ -49,10 +52,60 @@ def download_data(url, output_dir="data/raw"):
     print(f"Downloaded and extracted {tar_file_name} to {output_dir}")
     pass
 
-def main():
-    # Your main preprocessing logic here
-    print("Preprocessing RNA secondary structure data...")
-    download_data("https://rna.urmc.rochester.edu/pub/archiveII.tar.gz")
+def find_ct_files(input_dir: str) -> list:
+    """
+    Finds all .ct files in the given directory.
+    
+    :param input_dir: The directory where to look for CT files.
+    :return: A list of paths to CT files.
+    """
+    # return [os.path.join(input_dir, f) for f in os.listdir(input_dir) if f.endswith(".ct")]
+    return [os.path.join(root, file) for root, _, files in os.walk(input_dir) for file in files if file.endswith(".ct")]
 
+def extract_rna_sequence_from_ct(ct_file: str) -> tuple[str, str, int]:
+    """
+    Extracts the RNA sequence from a CT file. Evaluates if a pseudoknot 
+    :param ct_file: Path to a CT file.
+    :return: A tuple containing the filename (without extension) and the RNA sequence.
+    """
+    sequence = []
+    with open(ct_file, 'r') as file:
+        lines = file.readlines()
+        # Skip the header line, process each nucleotide line
+        for line in lines[1:]:
+            parts = line.strip().split()
+            if len(parts) < 2:
+                continue
+            nucleotide = parts[1]
+            sequence.append(nucleotide)
+    filename = os.path.splitext(os.path.basename(ct_file))[0]
+    # Return the filename without extension and the sequence
+    return filename, ''.join(sequence)
+
+def main():
+    print("Preprocessing RNA secondary structure data...")
+
+    # setup argument parsing
+    parser = argparse.ArgumentParser(description="Preprocess RNA secondary structure data.")
+    parser.add_argument("--url", type=str, help="URL to download RNA dataset from.")
+    parser.add_argument("--input", type=str, required=True, help="Path to the input raw data file.")
+    parser.add_argument("--output", type=str, help="Path to the output preprocessed data file (in .npy format).")
+    args = parser.parse_args()
+
+    # download data if it does not exist
+    if not os.listdir(args.input):
+        download_data(args.url)
+    else:
+        print("Some data already exists. Skipping download.")
+    
+    ct_files = find_ct_files(args.input)
+    print(len(ct_files), "CT files found.") # TODO: convert to logger
+
+
+    print("Preprocessing complete.")
+    
 if __name__ == "__main__":
     main()
+
+
+    
