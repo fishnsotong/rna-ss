@@ -9,7 +9,7 @@ script will download it from the specified URL.
 NOTE: Generate and preprocess rna_sequences as List[str].
 
 Usage:
-    python run_preprocessing.py --input data/raw --output data/preprocessed_data.npy 
+    python run_preprocessing.py --input data/raw --output data/processed --url https://rna.urmc.rochester.edu/pub/archiveII.tar.gz
 
 Arguments:
     --input: Path to the input raw data file (in .npy format).
@@ -20,9 +20,15 @@ Arguments:
 Author: Wayne Yeo
 """
 import os
+import sys
 import requests
 import tarfile
 import argparse
+
+# Add the 'src/' directory to sys.path
+# 
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+from utils import fasta_parse, fasta_write, dedup_sequences
 
 def download_data(url, output_dir="data/raw"):
     """
@@ -82,6 +88,39 @@ def extract_rna_sequence_from_ct(ct_file: str) -> tuple[str, str, int]:
     # Return the filename without extension and the sequence
     return filename, ''.join(sequence)
 
+def ct_to_fasta(input_dir: str, output_dir: str) -> str:
+    """
+    Finds all CT files in the input directory, extracts their RNA sequences,
+    and saves them in the specified FASTA file.
+
+    TODO: add support for storing DBN structures in the FASTA file.
+
+    :param input_dir: Directory containing CT files.
+    :param output_fasta_file: Path to the output FASTA file.
+    """
+    # find all ct files in current directory
+    ct_files = find_ct_files(input_dir)
+
+    # build path for output file
+    output_fasta_file = os.path.join(output_dir, "rna_sequences.fasta")
+    
+    # make sure the output directory exists
+    os.makedirs(output_dir, exist_ok=True)
+
+    count = 0
+    with open(output_fasta_file, 'w') as fasta_file:
+        for ct_file in ct_files:
+            count += 1
+            filename, sequence = extract_rna_sequence_from_ct(ct_file)
+            # Write the sequence in FASTA format 
+            fasta_file.write(f">{filename}\n")
+            fasta_file.write(f"{sequence}\n")
+            fasta_file.write("\n")
+    print(f"Processed {count} CT file(s)!")
+
+    # return the path to the output file, for further processing
+    return output_fasta_file
+
 def main():
     print("Preprocessing RNA secondary structure data...")
 
@@ -89,7 +128,7 @@ def main():
     parser = argparse.ArgumentParser(description="Preprocess RNA secondary structure data.")
     parser.add_argument("--url", type=str, help="URL to download RNA dataset from.")
     parser.add_argument("--input", type=str, required=True, help="Path to the input raw data file.")
-    parser.add_argument("--output", type=str, help="Path to the output preprocessed data file (in .npy format).")
+    parser.add_argument("--output", type=str, required=True, help="Path to the output preprocessed data file.")
     args = parser.parse_args()
 
     # download data if it does not exist
@@ -98,14 +137,15 @@ def main():
     else:
         print("Some data already exists. Skipping download.")
     
-    ct_files = find_ct_files(args.input)
-    print(len(ct_files), "CT files found.") # TODO: convert to logger
+    # convert CT files to FASTA format
+    fasta_file = ct_to_fasta(args.input, args.output)
 
+    # remove duplicate sequences
+    fasta_write(dedup_sequences(fasta_parse(fasta_file)), os.path.join(args.output, "dedup_rna_sequences.fasta"))
+
+    # TODO: add DBNs to FASTA?
 
     print("Preprocessing complete.")
     
 if __name__ == "__main__":
     main()
-
-
-    
