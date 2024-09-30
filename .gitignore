@@ -1,3 +1,10 @@
+# Project-specific files
+*.csv
+*.tsv
+*.fasta
+*tmp
+gis_data
+data
 .DS_Store
 
 # Byte-compiled / optimized / DLL files
@@ -27,13 +34,6 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
-
-# Data
-*.csv
-*.tsv
-*.fasta
-*_tmp
-gis_data
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
