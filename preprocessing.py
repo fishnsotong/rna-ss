@@ -1,5 +1,11 @@
 # python preprocessing.py --input data/raw --output data/processed --url https://rna.urmc.rochester.edu/pub/archiveII.tar.gz
 
+# TODO: make deduplication more sensible: keep all unique structures even though sequences are repeated
+# TODO: can we store DBN structures to disk directly instead of writing to FASTA file? see ct_to_fasta
+# TODO: set up logging
+
+# some of the functions here are crucial, but others can be rewritten or removed
+
 import os
 import argparse
 import requests
@@ -462,5 +468,4 @@ def main():
     print("Preprocessing complete.")
 
 if __name__ == "__main__":
-    # TODO: make deduplication more sensible: keep all unique structures even though sequences are repeated
     main()
