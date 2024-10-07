@@ -6,6 +6,7 @@
 gis_data
 data
 .DS_Store
+.vscode
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -35,6 +36,17 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+<<<<<<< HEAD
+=======
+# Data
+*.csv
+*.tsv
+*.fasta
+*_tmp
+gis_data
+data
+
+>>>>>>> 071949ba7246a19122f2c548db4927cc357ea90e
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
