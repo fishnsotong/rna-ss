@@ -54,7 +54,7 @@ def validate_sequence(sequence):
     
     return is_valid
 
-def ct2dbn(ct_filename: str) -> str:
+def ct_to_dbn(ct_filename: str) -> str:
     """
     Converts a CT (Connectivity Table) file into a dot-bracket notation (DBN) string representing RNA 
     secondary structure.
@@ -78,7 +78,7 @@ def ct2dbn(ct_filename: str) -> str:
 
     Example:
     --------
-    >>> ct2dbn('example.ct')
+    >>> ct_to_dbn('example.ct')
     '..((..<<..>>..))..'
 
     Notes:
@@ -191,7 +191,7 @@ def add_labels_to_data(i):
     names, sequences = i
     labels = []
     for name, _ in zip(names, sequences):
-        labels.append(pseudoknot_checker(ct2dbn("./gis_data/archiveII/" + name + ".ct")))
+        labels.append(pseudoknot_checker(ct_to_dbn("./gis_data/archiveII/" + name + ".ct")))
     return (names, sequences, labels)
 
 def fasta_parse(fasta_file: str, comment='#'):

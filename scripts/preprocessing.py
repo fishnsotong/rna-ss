@@ -12,8 +12,8 @@ Usage:
     python run_preprocessing.py --input data/raw --output data/processed --url https://rna.urmc.rochester.edu/pub/archiveII.tar.gz
 
 Arguments:
-    --input: Path to the input raw data file (in .npy format).
-    --output: Path to the output preprocessed data file (in .npy format).
+    --input: Path to the directory where raw data is stored
+    --output: Path to directory where preprocessed data will be stored
     --batch-size: Size of the batches for processing.
     --shuffle: Whether to shuffle the data before processing.
 
@@ -30,7 +30,7 @@ import argparse
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 from utils import fasta_parse, fasta_write, dedup_sequences
 
-def download_data(url, output_dir="data/raw"):
+def download_data(url, output_dir):
     """
     Download raw data from a given URL and save it to the specified directory.
 
@@ -68,7 +68,7 @@ def find_ct_files(input_dir: str) -> list:
     # return [os.path.join(input_dir, f) for f in os.listdir(input_dir) if f.endswith(".ct")]
     return [os.path.join(root, file) for root, _, files in os.walk(input_dir) for file in files if file.endswith(".ct")]
 
-def extract_rna_sequence_from_ct(ct_file: str) -> tuple[str, str, int]:
+def extract_rna_sequence_from_ct(ct_file: str) -> tuple[str, str]:
     """
     Extracts the RNA sequence from a CT file. Evaluates if a pseudoknot 
     :param ct_file: Path to a CT file.
@@ -133,7 +133,7 @@ def main():
 
     # download data if it does not exist
     if not os.listdir(args.input):
-        download_data(args.url)
+        download_data(args.url, args.input)
     else:
         print("Some data already exists. Skipping download.")
     
