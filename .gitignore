@@ -1,4 +1,12 @@
+# Project-specific files
+*.csv
+*.tsv
+*.fasta
+*tmp
+gis_data
+data
 .DS_Store
+.vscode
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
