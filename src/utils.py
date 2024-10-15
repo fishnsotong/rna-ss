@@ -177,9 +177,10 @@ def create_dataloader(dataframe: pd.DataFrame, batch_size: int = 32, shuffle: bo
     """
     dataset = RNADataset(dataframe)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, collate_fn=collate_fn)
+
     return dataloader
 
-def collate_fn(batch):
+def collate_fn(batch: list):
     """
     Collate function for the RNA dataset DataLoader.
     As the sequences have variable lengths, we need to pad them to create a tensor of equal-sized sequences.

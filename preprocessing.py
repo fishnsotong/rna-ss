@@ -442,6 +442,7 @@ def main():
 
     # remove duplicate sequences
     # TODO: de-duplication could be more sensible, where we keep all unique structures even though sequences are repeated
+    #       but I believe it's also not super necessary
     data = fasta_write(dedup_sequences(fasta_parse(fasta_file)), os.path.join(args.output, "dedup_rna_sequences.fasta"))
     data = add_structures_to_data(data, args.input)
 
